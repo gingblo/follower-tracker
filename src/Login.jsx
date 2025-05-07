@@ -1,64 +1,126 @@
+
 import React, { useState } from 'react';
-import { useAuth } from './AuthContext';
+import { auth } from './firebaseConfig';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
 
 export default function Login() {
-  const { user, login, register, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState('login'); // or 'register'
-
-  if (user) {
-    return (
-      <div style={{ padding: 40 }}>
-        <p>Welcome, {user.email}</p>
-        <button onClick={logout}>Logout</button>
-      </div>
-    );
-  }
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (mode === 'login') {
-        await login(email, password);
+      if (isRegistering) {
+        await createUserWithEmailAndPassword(auth, email, password);
       } else {
-        await register(email, password);
+        await signInWithEmailAndPassword(auth, email, password);
       }
-    } catch (err) {
-      alert(err.message);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      alert(error.message);
     }
   };
 
   return (
-    <div style={{ maxWidth: 320, margin: '80px auto', padding: 20, borderRadius: 8, boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
-      <h2>{mode === 'login' ? 'Login' : 'Register'}</h2>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          style={{ padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          style={{ padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
-        />
-        <button type="submit" style={{ padding: 10, background: '#4e54c8', color: '#fff', border: 'none', borderRadius: 4 }}>
-          {mode === 'login' ? 'Login' : 'Register'}
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: '#f9fafb',
+    }}>
+      <div style={{
+        background: '#fff',
+        padding: 30,
+        borderRadius: 12,
+        boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+        width: '100%',
+        maxWidth: 400,
+      }}>
+        <h2 style={{ marginBottom: 20 }}>{isRegistering ? 'Register' : 'Login'}</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{
+              marginBottom: 10,
+              padding: 10,
+              width: '100%',
+              borderRadius: 6,
+              border: '1px solid #ccc',
+              boxSizing: 'border-box',
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{
+              marginBottom: 10,
+              padding: 10,
+              width: '100%',
+              borderRadius: 6,
+              border: '1px solid #ccc',
+              boxSizing: 'border-box',
+            }}
+          />
+          <button type="submit" style={{
+            background: '#4e54c8',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            padding: 10,
+            width: '100%',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+          }}>
+            {isRegistering ? 'Register' : 'Login'}
+          </button>
+        </form>
+
+        <button onClick={handleGoogleLogin} style={{
+          marginTop: 12,
+          width: '100%',
+          padding: 10,
+          borderRadius: 6,
+          border: '1px solid #4e54c8',
+          background: '#fff',
+          color: '#4e54c8',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+        }}>
+          Sign in with Google
         </button>
-      </form>
-      <p style={{ marginTop: 12 }}>
-        {mode === 'login' ? "Don't have an account?" : 'Already registered?'}{' '}
-        <button onClick={() => setMode(mode === 'login' ? 'register' : 'login')} style={{ color: '#4e54c8', background: 'none', border: 'none', cursor: 'pointer' }}>
-          {mode === 'login' ? 'Register' : 'Login'}
-        </button>
-      </p>
+
+        <p style={{ marginTop: 16, fontSize: 14 }}>
+          {isRegistering ? 'Already registered?' : "Don't have an account?"}{' '}
+          <span
+            onClick={() => setIsRegistering(!isRegistering)}
+            style={{ color: '#4e54c8', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            {isRegistering ? 'Login' : 'Register'}
+          </span>
+        </p>
+      </div>
     </div>
   );
 }

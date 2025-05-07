@@ -1,10 +1,9 @@
-// src/firebaseConfig.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBLloDnSyu2guZPlV1v1eAiD7lkrGp1xIk",
+  apiKey: "AIzaSyBLloDnSyu2guZPlV1v1eAiD7lkrGp1XIk",
   authDomain: "follower-tracker-377aa.firebaseapp.com",
   projectId: "follower-tracker-377aa",
   storageBucket: "follower-tracker-377aa.appspot.com",
